@@ -5,7 +5,7 @@ server.on('message', function(buffer, rinfo){
     var hex = buffer.toString('hex');
     var opcode = hex.substring(0,4);
 
-    if (opcode == '0001') {
+    if (opcode === '0001') {
         console.log('R Session Request:' + hex + ' from ' + rinfo.address + ':' + rinfo.port);
 
         var crcLength = hex.substring(4,12);
@@ -21,12 +21,18 @@ server.on('message', function(buffer, rinfo){
         console.log('S Session Response:' + response.toString('hex') + ' to ' + rinfo.address + ':' + rinfo.port);
         server.send(response, 0, response.length, rinfo.port, rinfo.address);
 
-    else if (opcode == '0007') {
+    } else if (opcode === '0005') {
+        console.log('R Disconnect:' + hex + ' from ' + rinfo.address + ':' + rinfo.port);
+
+    } else if (opcode === '0007') {
         console.log('R Client Network Status Update:' + hex + ' from ' + rinfo.address + ':' + rinfo.port);
 
         var response = new Buffer('0000000000000000000000000000000000000000000000000000000000000000000000000000', 'hex');
         console.log('S Server Network Status Update:' + response.toString('hex') + ' to ' + rinfo.address + ':' + rinfo.port);
         server.send(response, 0, response.length, rinfo.port, rinfo.address);
+
+    } else if (opcode === '0009') {
+        console.log('R Channel 0 Data:' + hex + ' from ' + rinfo.address + ':' + rinfo.port);
 
     } else {
         console.log('R UNKNOWN:' + hex + ' from ' + rinfo.address + ':' + rinfo.port);
