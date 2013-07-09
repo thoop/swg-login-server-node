@@ -1,6 +1,74 @@
 var dgram = require('dgram');
 var server = dgram.createSocket('udp4');
 
+var decrypt = function(hex, crcSeed) {
+
+    crcSeed = parseInt(crcSeed, 16); //get int of hex for bitwise operations
+    data = hex.substring(4).substring(0, hex.length - 8); //ignore opcode and crc
+    var length = data.length;
+
+    var response = '', newHexValue, temp;
+
+    var block_count = Math.floor(length / 8);
+    var byte_count = (length % 8 / 2); //divided by 2 since each hex number is 2 numbers
+
+    for(var i = 0; i < block_count; i++) {
+        if(i > 0) {
+            crcSeed = parseInt(data.substring((i-1)*8, (i-1)*8+8), 16);
+        }
+        newHexValue = ((parseInt(data.substring(i*8, i*8+8), 16) ^ crcSeed)>>>0).toString(16); //>>>0 turns it into an unsigned int
+        while (newHexValue.length != 8) {
+            newHexValue = '0' + newHexValue;
+        }
+        response += newHexValue;
+    }
+
+    crcSeed = parseInt(data.substring(data.length - byte_count*2 - 8, data.length - byte_count*2 - 6), 16); //get the first byte from the key
+    for(var j = 0; j < byte_count; j++) {
+        newHexValue= ((parseInt(data.substring(i*8+(j*2), i*8+(j*2)+2), 16) ^ crcSeed)>>>0).toString(16);
+        if (newHexValue.length != 2) {
+            newHexValue = '0' + newHexValue;
+        }
+        response += newHexValue;
+    }
+
+    response = hex.substring(0,4) + response + hex.substring(hex.length - 4);
+    return response.toUpperCase();
+};
+
+var encrypt = function(hex, crcSeed) {
+
+    crcSeed = parseInt(crcSeed, 16); //get int of hex for bitwise operations
+    data = hex.substring(4).substring(0, hex.length - 8); //ignore opcode and crc
+    var length = data.length;
+
+    var response = '', newHexValue;
+
+    var block_count = Math.floor(length / 8);
+    var byte_count = (length % 8 / 2); //divided by 2 since each hex number is 2 numbers
+
+    for(var i = 0; i < block_count; i++) {
+        crcSeed = (parseInt(data.substring(i*8, i*8+8), 16) ^ crcSeed)>>>0; //>>>0 turns it into an unsigned int
+        newHexValue =  crcSeed.toString(16);
+        while (newHexValue.length < 8) {
+            newHexValue = '0' + newHexValue;
+        }
+        response += newHexValue;
+    }
+
+    crcSeed = parseInt(crcSeed.toString(16).substring(0,2), 16); //get the first byte from the key
+    for(var j = 0; j < byte_count; j++) {
+        newHexValue= ((parseInt(data.substring(i*8+(j*2), i*8+(j*2)+2), 16) ^ crcSeed)>>>0).toString(16);
+        if (newHexValue.length != 2) {
+            newHexValue = '0' + newHexValue;
+        }
+        response += newHexValue;
+    }
+
+    response = hex.substring(0,4) + response + hex.substring(hex.length - 4);
+    return response.toUpperCase();
+};
+
 server.on('message', function(buffer, rinfo){
     var hex = buffer.toString('hex');
     var opcode = hex.substring(0,4);
