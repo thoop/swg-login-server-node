@@ -1,0 +1,17 @@
+{
+  "name": "swg-login-server-node",
+  "description": "SWG Login Server written in node",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "lodash": "1.3.1"
+  },
+  "engines": {
+    "node": "0.10.12",
+    "npm": "1.2.32"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thoop/swg-login-server-node"
+  }
+}
