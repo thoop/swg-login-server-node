@@ -1,16 +1,11 @@
-var swg = require('./swg')
+var swg = require('swg')
 
 var app = swg({
     verbose: true
 });
 
+//Session request
 app.on('0001', function(req, res, next) {
-    console.log('in app.on for 0001');
-    next();
-
-}, function(req, res, next) {
-    console.log('in app.on next');
-
     var crcLength = req.hex.substring(4,12);
     var connectionId = req.hex.substring(12,20);
     var clientUDPSize = req.hex.substring(20,28);
@@ -20,19 +15,23 @@ app.on('0001', function(req, res, next) {
     var useCompression = '00';
     var seedSize = '04';
 
-    var response = '0002' + connectionId + crcSeed + crcLength + useCompression + seedSize + clientUDPSize
-
-    res.send(response);
+    res.send('0002' + connectionId + crcSeed + crcLength + useCompression + seedSize + clientUDPSize);
 });
 
-// app.on('0007', function(req, res, next) {
-//     console.log('in app.on for 0007');
-//     next();
-// }, function(req, res, next) {
+//disconnect
+app.on('0005', function(req, res, next) {
+    console.log(req.requestInfo.address + ' disconnected');
+});
 
-//     var response = new Buffer('0000000000000000000000000000000000000000000000000000000000000000000000000000', 'hex');
-//     res.send(response);
-// });
+//Client network stats update
+app.on('0007', function(req, res, next) {
+    res.send('0000000000000000000000000000000000000000000000000000000000000000000000000000');
+});
+
+//Channel 0 - data packet
+app.on('0009', function(req, res, next) {
+
+});
 
 
 app.listen(44453, function() {
