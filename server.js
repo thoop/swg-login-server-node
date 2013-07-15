@@ -7,7 +7,7 @@ var app = swg({
 //Session request
 app.on('0001', function(req, res, next) {
     var crcLength = '02';
-    var useCompression = '00';
+    var useCompression = '01';
     var seedSize = '04';
 
     res.send('0002' + req.packet.connectionId + req.packet.crcSeed + crcLength + useCompression + seedSize + req.packet.clientUDPSize);
@@ -23,6 +23,10 @@ app.on('0007', function(req, res, next) {
     res.send('00080000000000000000000000000000000000000000000000000000000000000000000000000000');
 });
 
+app.on('0009', function() {
+    console.log('0009');
+});
+
 app.on('41131F96', function(req, res, next) {
     console.log(req.packet);
     var operandCount = '0400';
@@ -32,7 +36,7 @@ app.on('41131F96', function(req, res, next) {
     var userId = '0000000000';
     var stringSize = '0500';
     var username = '74686F6F70';
-    res.send('0009' + operandCount + opcode + sessionKeySize + sessionKey + userId + stringSize + username + '000000');
+    res.send('0009' + operandCount + opcode + sessionKeySize + sessionKey + userId + stringSize + username);
 });
 
 
