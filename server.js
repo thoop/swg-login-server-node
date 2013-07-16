@@ -4,11 +4,17 @@ var app = swg({
     verbose: true
 });
 
+app.shouldAcknowledgePackets = true;
+
 //Session request
 app.on('0001', function(req, res, next) {
     var crcLength = '02';
     var useCompression = '01';
     var seedSize = '04';
+
+    app.crcLength = parseInt(crcLength, 16);
+    app.useCompression = parseInt(useCompression, 16);
+    app.seedSize = parseInt(seedSize, 16);
 
     res.send('0002' + req.packet.connectionId + req.packet.crcSeed + crcLength + useCompression + seedSize + req.packet.clientUDPSize);
 });
