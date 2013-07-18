@@ -1,3 +1,4 @@
+[![Stories in Ready](http://badge.waffle.io/thoop/swg-login-server-node.png)](http://waffle.io/thoop/swg-login-server-node)  
 Bare minimum of a Star Wars Galaxies login server written in NodeJS
 
 To Run the Server
